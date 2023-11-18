@@ -1,0 +1,23 @@
+{
+    "name": "Postman",
+    "version": "1.0",
+    "description": "Postman is a multi-core, pre-emptive multi-tasking microkernel for the dual core Arm Cortex-M0+ Raspberry Pi Pico microcontroller.",
+    "keywords": "test",
+    "authors": [
+        {
+            "name": "Neil Stansbury",
+            "email": "neil@neilstansbury.com",
+            "maintainer": true
+        }
+    ],
+    "license": "MIT",
+    "dependencies": {},
+    "frameworks": "baremetal",
+    "platforms": "https://github.com/Tactory/wizio-pico.git",
+    "build": {
+        "libLDFMode": "chain+",
+        "srcFilter": [ "+<*>", "-<main*.cpp>" ],
+        "flags": [ "-D PICO_CYW43_ARCH_NONE", "-D PICO_STDIO_USB" ],
+        "unflags": [ "-fno-rtti", "-D PICO_STDIO_UART", "-D PICO_CYW43_ARCH_POLL" ]
+    }
+}
