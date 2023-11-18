@@ -11,7 +11,9 @@
         }
     ],
     "license": "MIT",
-    "dependencies": {},
+    "dependencies": {
+        "uriparser": "https://github.com/uriparser/uriparser.git"
+    },
     "frameworks": "baremetal",
     "platforms": "https://github.com/Tactory/wizio-pico.git",
     "build": {
