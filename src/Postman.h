@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <Uri.h>
 
 #include "Endpoint.h"
 #include "Message.h"
@@ -62,11 +63,37 @@ namespace Postman {
   SharedConst<Message> fetch(const std::string target, uint32_t since = 0, uint32_t timeout_ms = 0);
 
   /**
+   * Get property last published by target with timeout
+   * Handler only. Will block until success or timeout
+  */
+  template<typename T>
+  const T get(const std::string target, const std::string resource, const std::string query = "", uint32_t timeout_ms = 0) {
+    SharedConst<Message> message = Postman::fetch(target, 0, timeout_ms);
+    if(message && message->hasProperty<T>(resource)){
+      return message->getProperty<T>(resource);
+    }
+    return T();
+  }
+
+  /**
+   * Expecting URI format: "/endpoint/path/resource?query=xxx"
+  */
+  template<typename T>
+  const T get(const std::string uriString, uint32_t timeout_ms = 0) {
+    uriparser::Uri uri(uriString);
+
+    std::string resource = uri.resource();
+    uint8_t len = uri.path().size() - resource.size();
+    std::string target = uri.path().substr(0, len -1);  // -1 for trailing '/'
+
+    return get<T>(target, resource, uri.query(), timeout_ms);
+  }
+
+  /**
    * Peek for new data post()ed by target Endpoint. Since last value
    * Handler only. Will not block
   */
   bool peek(const std::string target, uint32_t since = 0);
-  // bool peek(); 
 
   /**
    * Notify target Endpoint. Endpoints wait()ing will be resumed

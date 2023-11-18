@@ -20,14 +20,14 @@ void handler_A(){
     Postman::sleep(1000);
     uint32_t diff = us_to_ms(absolute_time_diff_us(start, get_absolute_time()));
 
-    printf("Core: %i :: Endpoint B - Timeout: %lum/s\n", get_core_num(), diff);
+    printf("[%i] :: Endpoint B - Timeout: %lum/s\n", get_core_num(), diff);
   }
 }
 
 void handler_B(){
   while (1) {
     uint8_t signals = Postman::wait();
-    printf("Core: %i :: Endpoint C - Signals: %i \n", get_core_num(), signals);
+    printf("[%i] :: Endpoint C - Signals: %i \n", get_core_num(), signals);
   }
 }
 
@@ -37,7 +37,7 @@ void handler_C(){
     Postman::sleep(2000);
     uint32_t diff = us_to_ms(absolute_time_diff_us(start, get_absolute_time()));
 
-    printf("Core: %i :: Endpoint D - Timeout: %lum/s\n", get_core_num(), diff);
+    printf("[%i] :: Endpoint D - Timeout: %lum/s\n", get_core_num(), diff);
   }
 }
 
@@ -60,7 +60,7 @@ void handler_D(){
       primes[get_core_num()]++;
       // Every 4096 prime numbers, notify Endpoint B
       if(!(primes[get_core_num()] & 0xFFF)) {
-        printf("Core: %i :: Endpoint D - Notify Endpoint B\n", get_core_num());
+        printf("[%i] :: Endpoint D - Notify Endpoint B\n", get_core_num());
         Postman::notify(ENDPOINT_B);
         Postman::yield();
       }
@@ -77,7 +77,7 @@ void handler_E(){
       messageid = message->id;
       uint32_t time_ms = message->getProperty<uint32_t>("time");
       std::string data = message->getProperty<std::string>("data");
-      printf("Core: %i :: Endpoint E - Fetch Message time: %lu Data: %s\n", get_core_num(), time_ms, data.c_str());
+      printf("[%i] :: Endpoint E - Fetch Message time: %lu Data: %s\n", get_core_num(), time_ms, data.c_str());
     }
   }
 }
@@ -95,9 +95,20 @@ void handler_F(){
     message->setProperty("data", data);
 
     Postman::publish(message);
-    printf("Core: %i :: Endpoint F - Publish Message ID: %lu at: %lu\n", get_core_num(), message->id, time_ms);
+    printf("[%i] :: Endpoint F - Publish Message ID: %lu at: %lu\n", get_core_num(), message->id, time_ms);
   }
 }
+
+void handler_G(){
+  int p;
+
+  while (1) {
+    Postman::sleep(2000);
+    auto time = Postman::get<uint32_t>("/endpoint/f/time?s=xyz;y=123");
+    printf("[%i] :: Endpoint G - Get '/endpoint/f/time': %lu\n", get_core_num(), time);
+  }
+}
+
 
 
 
@@ -108,6 +119,7 @@ void app(){
   Postman::open(ENDPOINT_D, handler_D);
   Postman::open(ENDPOINT_E, handler_E);
   Postman::open(ENDPOINT_F, handler_F);
+  Postman::open(ENDPOINT_G, handler_G);
 
   // Endpoint handler as lambda
   Postman::open(ENDPOINT_G, [](){
