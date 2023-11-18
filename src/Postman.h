@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <Uri.h>
+#include "Uri.h"
 
 #include "Endpoint.h"
 #include "Message.h"
